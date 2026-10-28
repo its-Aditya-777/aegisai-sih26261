@@ -1,0 +1,45 @@
+{
+  "Extension of Approval (EoA)": [
+    "Extension of Approval (EoA) letter",
+    "Accreditation / recognition certificate",
+    "Faculty roster",
+    "TER payment receipt",
+    "Infrastructure evidence",
+    "Affidavit / undertaking"
+  ],
+  "New institution / initial approval": [
+    "Land / building ownership or lease proof",
+    "Fire safety certificate",
+    "Building stability certificate",
+    "Faculty roster",
+    "Infrastructure evidence",
+    "Affidavit / undertaking",
+    "TER payment receipt"
+  ],
+  "New programme / course": [
+    "Extension of Approval (EoA) letter",
+    "Accreditation / recognition certificate",
+    "Faculty roster",
+    "Infrastructure evidence",
+    "TER payment receipt",
+    "Affidavit / undertaking"
+  ],
+  "Intake change": [
+    "Extension of Approval (EoA) letter",
+    "Faculty roster",
+    "Infrastructure evidence",
+    "TER payment receipt",
+    "Affidavit / undertaking"
+  ],
+  "Faculty update": [
+    "Faculty roster",
+    "Faculty qualification evidence",
+    "Affidavit / undertaking"
+  ],
+  "Infrastructure update": [
+    "Infrastructure evidence",
+    "Fire safety certificate",
+    "Building stability certificate",
+    "Affidavit / undertaking"
+  ]
+}

@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f5f8fc">
+  <title>{% block title %}AegisAI · Application Assurance{% endblock %}</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+  <script defer src="{{ url_for('static', filename='app.js') }}"></script>
+</head>
+<body>
+  <div class="app-shell">
+    <button class="sidebar-overlay" type="button" aria-label="Close navigation" tabindex="-1"></button>
+    <aside class="sidebar" id="appSidebar" aria-label="Workspace navigation">
+      <div class="side-label">WORKSPACE</div>
+      <nav class="side-nav" aria-label="Main navigation">
+        <a class="nav-link {% if request.endpoint == 'dashboard' %}active{% endif %}" href="{{ url_for('dashboard') }}"><span class="nav-icon">⌂</span> Overview</a>
+        <a class="nav-link {% if request.endpoint in ['new_application', 'create_application'] %}active{% endif %}" href="{{ url_for('new_application') }}"><span class="nav-icon">＋</span> New application</a>
+        <a class="nav-link {% if request.endpoint == 'rules_page' %}active{% endif %}" href="{{ url_for('rules_page') }}"><span class="nav-icon">☷</span> Rule library</a>
+      </nav>
+      <div class="sidebar-spacer"></div>
+      <div class="sidebar-note">
+        <span class="note-icon">✓</span>
+        <strong>Human review stays in control</strong>
+        <p>Every automated flag is advisory and includes a reason for review.</p>
+      </div>
+      <div class="sidebar-bottom"><span class="live-dot"></span><span>Local prototype</span><span class="version-tag">SIH26261</span></div>
+    </aside>
+
+    <main class="main-area">
+      <header class="topbar">
+        <div class="topbar-left">
+          <button class="sidebar-toggle" type="button" aria-controls="appSidebar" aria-expanded="true" aria-label="Toggle navigation" title="Toggle navigation">
+            <span></span><span></span><span></span>
+          </button>
+          <a class="brand topbar-brand" href="{{ url_for('dashboard') }}" aria-label="AegisAI dashboard">
+            <span class="brand-mark">A</span>
+            <span class="brand-copy"><strong>AegisAI</strong><small>Application assurance</small></span>
+          </a>
+          <div class="breadcrumbs"><span>Workspace</span><span class="crumb-sep">/</span><strong>{% block breadcrumb %}Overview{% endblock %}</strong></div>
+        </div>
+        <div class="topbar-actions">
+          <span class="prototype-pill"><span class="live-dot"></span> Prototype mode</span>
+          <span class="user-avatar">DR</span>
+          <div class="user-meta"><strong>Demo reviewer</strong><small>Review workspace</small></div>
+        </div>
+      </header>
+      <section class="page-content">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+          {% if messages %}<div class="flash-stack">{% for category, message in messages %}<div class="flash flash-{{ category }}"><span>{% if category == 'error' %}⚠{% elif category == 'warning' %}◷{% else %}✓{% endif %}</span>{{ message }}<button type="button" class="flash-close" aria-label="Dismiss">×</button></div>{% endfor %}</div>{% endif %}
+        {% endwith %}
+        {% block content %}{% endblock %}
+      </section>
+      <footer class="app-footer"><span>AegisAI · SIH26261 concept prototype</span><span>Decision support only · not an approval or forgery determination</span></footer>
+    </main>
+  </div>
+</body>
+</html>

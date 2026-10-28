@@ -1,0 +1,10 @@
+{
+  "missing_documents": true,
+  "unreadable_documents": true,
+  "file_signature": true,
+  "expired_documents": true,
+  "cross_document_consistency": true,
+  "duplicate_files": true,
+  "pdf_metadata_anomalies": true,
+  "document_type_check": true
+}

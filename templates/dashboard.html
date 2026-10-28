@@ -1,0 +1,319 @@
+{% extends 'base.html' %} {% block title %}Overview · AegisAI{% endblock %} {%
+block breadcrumb %}Overview{% endblock %} {% block content %}
+<section class="hero-panel">
+  <div class="hero-copy">
+    <div class="eyebrow">
+      <span class="eyebrow-dot"></span> AICTE APPLICATION ASSURANCE
+    </div>
+    <h1>
+      Scrutiny that starts<br /><span>before the file reaches a desk.</span>
+    </h1>
+    <p>
+      Bring application details and supporting documents into one
+      evidence-linked workflow. Find gaps early, explain every flag, and route
+      uncertain cases to an authorized reviewer.
+    </p>
+    <div class="hero-actions">
+      <a class="btn btn-primary" href="{{ url_for('new_application') }}"
+        ><span>＋</span> Start validation</a
+      >
+      <form
+        action="{{ url_for('load_demo') }}"
+        method="post"
+        class="inline-form"
+      >
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+        <button class="btn btn-secondary" type="submit">
+          <span>▷</span> Load guided demo
+        </button>
+      </form>
+    </div>
+    <div class="hero-footnote">
+      <span class="mini-check">✓</span> Synthetic demo data available · no live
+      AICTE system assumed
+    </div>
+  </div>
+
+  <div
+    class="hero-visual hero-pipeline"
+    aria-label="AegisAI validation workflow"
+  >
+    <div class="hero-pipeline-heading">
+      <span class="section-kicker">VALIDATION PIPELINE</span>
+      <strong>From submission to review</strong>
+      <small>Four stages. One traceable record.</small>
+    </div>
+
+    <div class="hero-flow-list">
+      <div class="hero-flow-step">
+        <span class="hero-flow-number step-blue">01</span>
+        <span class="hero-flow-copy">
+          <strong>Documents</strong>
+          <small>Upload files and extract text</small>
+        </span>
+        <span class="hero-flow-status flow-status-blue">INTAKE</span>
+      </div>
+
+      <div class="hero-flow-connector"></div>
+
+      <div class="hero-flow-step">
+        <span class="hero-flow-number step-teal">02</span>
+        <span class="hero-flow-copy">
+          <strong>Rule checks</strong>
+          <small>Missing fields, expiry and consistency</small>
+        </span>
+        <span class="hero-flow-status flow-status-teal">CHECKS</span>
+      </div>
+
+      <div class="hero-flow-connector"></div>
+
+      <div class="hero-flow-step">
+        <span class="hero-flow-number step-amber">03</span>
+        <span class="hero-flow-copy">
+          <strong>Evidence & verification</strong>
+          <small>Reasons, source status and findings</small>
+        </span>
+        <span class="hero-flow-status flow-status-amber">TRACE</span>
+      </div>
+
+      <div class="hero-flow-connector"></div>
+
+      <div class="hero-flow-step">
+        <span class="hero-flow-number step-green">04</span>
+        <span class="hero-flow-copy">
+          <strong>Human review</strong>
+          <small>Reviewer actions and audit trail</small>
+        </span>
+        <span class="hero-flow-status flow-status-green">REVIEW</span>
+      </div>
+    </div>
+
+    <div class="hero-flow-note">
+      <span class="mini-check">✓</span>
+      Every flag has a reason. Final decisions stay with officials.
+    </div>
+  </div>
+</section>
+
+<div class="section-heading stats-heading">
+  <div>
+    <span class="section-kicker">AT A GLANCE</span>
+    <h2>Review workspace</h2>
+  </div>
+  <span class="updated-label"
+    ><span class="live-dot"></span> Local records</span
+  >
+</div>
+<section class="stats-grid">
+  <article class="stat-card">
+    <div class="stat-top">
+      <span class="stat-icon icon-blue">▤</span
+      ><span class="stat-caption">All records</span>
+    </div>
+    <div class="stat-value">{{ stats.applications }}</div>
+    <div class="stat-label">Applications in workspace</div>
+    <div class="stat-bottom">
+      <span class="stat-neutral">Application-level view</span>
+    </div>
+  </article>
+  <article class="stat-card">
+    <div class="stat-top">
+      <span class="stat-icon icon-red">!</span
+      ><span class="stat-caption">Priority queue</span>
+    </div>
+    <div class="stat-value">{{ stats.needs_review }}</div>
+    <div class="stat-label">Need official review</div>
+    <div class="stat-bottom">
+      <span class="status-dot red-dot"></span> High-severity items present
+    </div>
+  </article>
+  <article class="stat-card">
+    <div class="stat-top">
+      <span class="stat-icon icon-amber">◷</span
+      ><span class="stat-caption">Verification</span>
+    </div>
+    <div class="stat-value">{{ stats.pending_source }}</div>
+    <div class="stat-label">Pending / manual source checks</div>
+    <div class="stat-bottom">
+      <span class="status-dot amber-dot"></span> No live issuer access assumed
+    </div>
+  </article>
+  <article class="stat-card">
+    <div class="stat-top">
+      <span class="stat-icon icon-teal">☷</span
+      ><span class="stat-caption">Evidence</span>
+    </div>
+    <div class="stat-value">{{ stats.open_findings }}</div>
+    <div class="stat-label">Active review findings</div>
+    <div class="stat-bottom">
+      <span class="stat-neutral">Each finding includes a reason</span>
+    </div>
+  </article>
+</section>
+
+<section class="dashboard-columns">
+  <div class="panel recent-panel">
+    <div class="panel-heading">
+      <div>
+        <span class="section-kicker">APPLICATIONS</span>
+        <h2>Recent applications</h2>
+      </div>
+      <a class="text-link" href="{{ url_for('new_application') }}"
+        >New application <span>→</span></a
+      >
+    </div>
+    {% if applications %}
+    <div class="table-wrap">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Institution</th>
+            <th>Application</th>
+            <th>Status</th>
+            <th>Score</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for item in applications %}
+          <tr>
+            <td>
+              <div class="institution-cell">
+                <span class="institution-mark"
+                  >{{ item.institution_name[:1]|upper }}</span
+                ><span
+                  ><strong>{{ item.institution_name }}</strong
+                  ><small>{{ item.institution_code }}</small></span
+                >
+              </div>
+            </td>
+            <td>
+              <span class="mono-text">{{ item.id }}</span
+              ><small class="table-subline">{{ item.category }}</small>
+            </td>
+            <td>
+              {% if 'Needs official' in item.status %}<span
+                class="status-pill status-danger"
+                >Needs review</span
+              >{% elif 'Ready' in item.status %}<span
+                class="status-pill status-success"
+                >Ready for review</span
+              >{% elif 'Review recommended' in item.status %}<span
+                class="status-pill status-warning"
+                >Review recommended</span
+              >{% else %}<span class="status-pill status-neutral"
+                >{{ item.status }}</span
+              >{% endif %}
+            </td>
+            <td>
+              <div class="score-cell">
+                <strong>{{ item.readiness_score }}</strong
+                ><span class="score-track"
+                  ><i style="width: {{ item.readiness_score }}%"></i
+                ></span>
+              </div>
+            </td>
+            <td>
+              <a
+                class="row-arrow"
+                href="{{ url_for('application_detail', app_id=item.id) }}"
+                aria-label="Open application"
+                >↗</a
+              >
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% else %}
+    <div class="empty-state">
+      <div class="empty-illustration">▤</div>
+      <h3>Your review workspace starts here</h3>
+      <p>
+        Create an application or load the synthetic guided demo to see document
+        checks, evidence-linked findings and the review report.
+      </p>
+      <div class="empty-actions">
+        <a class="btn btn-primary" href="{{ url_for('new_application') }}"
+          >Create application</a
+        >
+        <form action="{{ url_for('load_demo') }}" method="post">
+          <input
+            type="hidden"
+            name="csrf_token"
+            value="{{ csrf_token() }}"
+          /><button class="btn btn-secondary" type="submit">
+            Load demo case
+          </button>
+        </form>
+      </div>
+    </div>
+    {% endif %}
+  </div>
+  <aside class="panel queue-panel">
+    <div class="panel-heading">
+      <div>
+        <span class="section-kicker">ACTION REQUIRED</span>
+        <h2>Review queue</h2>
+      </div>
+      <span class="count-badge">{{ queue|length }}</span>
+    </div>
+    {% if queue %}
+    <div class="queue-list">
+      {% for item in queue %}<a
+        class="queue-item"
+        href="{{ url_for('application_detail', app_id=item.application_id) }}#findings"
+        ><span class="severity-rail severity-{{ item.severity|lower }}"></span
+        ><span class="queue-copy"
+          ><strong>{{ item.title }}</strong
+          ><small
+            >{{ item.institution_name }} · {{ item.institution_code }}</small
+          ><span class="queue-meta"
+            ><span class="severity-text severity-text-{{ item.severity|lower }}"
+              >{{ item.severity }}</span
+            ><span>·</span><span>{{ item.status }}</span></span
+          ></span
+        ><span class="queue-arrow">→</span></a
+      >{% endfor %}
+    </div>
+    {% else %}
+    <div class="queue-empty">
+      <span class="queue-empty-icon">✓</span
+      ><strong>No open findings yet</strong>
+      <p>Run a validation to populate the review queue.</p>
+    </div>
+    {% endif %}
+    <div class="queue-footer">
+      <span class="status-dot teal-dot"></span> Findings remain advisory until
+      reviewed
+    </div>
+  </aside>
+</section>
+
+<section class="workflow-strip">
+  <div class="workflow-title">
+    <span class="section-kicker">HOW IT WORKS</span>
+    <h2>One traceable path from upload to review</h2>
+  </div>
+  <div class="workflow-steps">
+    <div class="workflow-step">
+      <span>01</span><strong>Collect</strong><small>Application + files</small>
+    </div>
+    <i>→</i>
+    <div class="workflow-step">
+      <span>02</span><strong>Validate</strong><small>Rules + anomalies</small>
+    </div>
+    <i>→</i>
+    <div class="workflow-step">
+      <span>03</span><strong>Verify</strong
+      ><small>Authorized source / manual</small>
+    </div>
+    <i>→</i>
+    <div class="workflow-step">
+      <span>04</span><strong>Review</strong
+      ><small>Evidence + audit report</small>
+    </div>
+  </div>
+</section>
+{% endblock %}

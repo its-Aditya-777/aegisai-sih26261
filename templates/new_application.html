@@ -1,0 +1,60 @@
+{% extends 'base.html' %}
+{% block title %}New application · AegisAI{% endblock %}
+{% block breadcrumb %}<a href="{{ url_for('dashboard') }}">Overview</a><span class="crumb-sep">/</span> New application{% endblock %}
+{% block content %}
+<div class="page-title-row"><div><div class="eyebrow"><span class="eyebrow-dot"></span> INTAKE WORKFLOW</div><h1>Start an application review</h1><p>Enter the institution details, attach supporting files, and run the same preliminary checks across the submitted package.</p></div><a class="btn btn-quiet" href="{{ url_for('dashboard') }}">← Back to overview</a></div>
+<section class="sample-packs panel" aria-labelledby="sample-packs-title">
+  <div class="sample-packs-heading">
+    <div><span class="section-kicker">TRY THE WORKFLOW</span><h2 id="sample-packs-title">Two synthetic PDF examples</h2><p>Download and extract a sample PDF pack first, then fill its profile and attach the matching files below.</p></div>
+    <span class="sample-synthetic-badge">Synthetic data only</span>
+  </div>
+  <div class="sample-packs-grid">
+    <article class="sample-pack-card sample-pack-clean">
+      <span class="sample-pack-label"><span class="sample-label-dot"></span> EXAMPLE 01 · CONSISTENT</span>
+      <h3>Complete submission</h3>
+      <p>Six matching document PDFs. Demonstrates checklist coverage, text extraction and a clean preliminary result while issuer checks remain manual.</p>
+      <div class="sample-pack-actions"><button class="btn btn-secondary btn-small" type="button" data-example-fill data-institution-name="Riverbend Institute of Technology" data-institution-code="AICTE-DEMO-120" data-category="Extension of Approval (EoA)" data-academic-year="2026-27" data-contact-email="demo@example.invalid">Fill profile fields</button><a class="btn btn-primary btn-small" href="{{ url_for('static', filename='demo_documents/clean_submission_pack.zip') }}" download>Download 6 PDFs ↓</a></div>
+    </article>
+    <article class="sample-pack-card sample-pack-review">
+      <span class="sample-pack-label"><span class="sample-label-dot"></span> EXAMPLE 02 · REVIEW NEEDED</span>
+      <h3>Inconsistent submission</h3>
+      <p>Five PDFs with an expired certificate and a different institution code in the faculty roster. The affidavit is intentionally omitted.</p>
+      <div class="sample-pack-actions"><button class="btn btn-secondary btn-small" type="button" data-example-fill data-institution-name="Pinecrest Technical College" data-institution-code="AICTE-DEMO-205" data-category="Extension of Approval (EoA)" data-academic-year="2026-27" data-contact-email="demo@example.invalid">Fill profile fields</button><a class="btn btn-primary btn-small" href="{{ url_for('static', filename='demo_documents/review_needed_pack.zip') }}" download>Download 5 PDFs ↓</a></div>
+    </article>
+  </div>
+  <p class="sample-pack-instructions" id="exampleProfileStatus" aria-live="polite"><strong>How to use:</strong> download and extract a ZIP first, then click “Fill profile fields”, add one upload row per PDF, and select the matching document type. Example 2 must remain at five files to show the missing-affidavit flag.</p>
+</section>
+<div class="notice notice-info"><span class="notice-icon">i</span><div><strong>Prototype data handling</strong><p>Files are processed locally by this application. No AICTE portal or issuing-authority system is contacted. Use synthetic or authorized anonymized records for demonstration.</p></div></div>
+<form class="application-form" action="{{ url_for('create_application') }}" method="post" enctype="multipart/form-data" data-required-docs='{{ required_docs|tojson }}' id="applicationForm">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+  <div class="form-layout">
+    <div class="form-main">
+      <section class="panel form-panel">
+        <div class="panel-heading form-panel-heading"><div><span class="section-kicker">STEP 01 · APPLICATION PROFILE</span><h2>Institution details</h2><p>These fields are used as the reference values for cross-document consistency checks.</p></div><span class="step-number">01</span></div>
+        <div class="form-grid">
+          <label class="field field-wide"><span>Institution / legal name <b>*</b></span><input type="text" name="institution_name" placeholder="e.g., Northstar Institute of Technology" maxlength="180" required><small>Use the official name as it appears in institutional records.</small></label>
+          <label class="field"><span>Institution identifier / AICTE ID <b>*</b></span><input type="text" name="institution_code" placeholder="e.g., IN-XXXXXX" maxlength="80" required><small>Used for preliminary consistency checks.</small></label>
+          <label class="field"><span>Academic year <b>*</b></span><select name="academic_year" required><option value="">Select academic year</option><option>2026-27</option><option>2027-28</option><option>2025-26</option><option>2024-25</option><option>Other / as applicable</option></select></label>
+          <label class="field field-wide"><span>Application category <b>*</b></span><select name="category" id="applicationCategory" required><option value="">Select application category</option>{% for category in required_docs.keys() %}<option value="{{ category }}">{{ category }}</option>{% endfor %}</select><small>The selected category determines the preliminary checklist. Rules are configurable and must be aligned with the applicable handbook.</small></label>
+          <label class="field field-wide"><span>Contact email <small class="inline-muted">(optional)</small></span><input type="email" name="contact_email" placeholder="compliance@example.edu" maxlength="180"><small>For prototype recordkeeping only; no email is sent.</small></label>
+        </div>
+      </section>
+
+      <section class="panel form-panel upload-panel">
+        <div class="panel-heading form-panel-heading"><div><span class="section-kicker">STEP 02 · SUPPORTING EVIDENCE</span><h2>Upload documents</h2><p>Choose a document type for each file so the system can compare it with the relevant checklist.</p></div><span class="step-number">02</span></div>
+        <div class="upload-dropzone" id="uploadDropzone"><div class="upload-icon">↑</div><strong>Add files to the application</strong><span>PDF, DOCX, TXT, CSV, PNG, JPG, TIFF or WEBP · max 20 MB per request</span><button class="btn btn-secondary btn-small" type="button" id="addDocumentRow">＋ Add document</button></div>
+        <div class="document-upload-rows" id="documentUploadRows">
+          <div class="upload-row"><div class="upload-row-index">01</div><label class="field"><span>Document type</span><select name="document_types"><option value="">Choose type</option>{% for docs in required_docs.values() %}{% for doc in docs %}<option value="{{ doc }}">{{ doc }}</option>{% endfor %}{% endfor %}<option>Other supporting document</option></select></label><label class="file-picker"><span class="file-picker-label">Choose file</span><input type="file" name="documents" accept=".pdf,.docx,.txt,.csv,.png,.jpg,.jpeg,.tif,.tiff,.webp"><span class="file-name">No file selected</span></label><button type="button" class="remove-upload" aria-label="Remove upload row" title="Remove row">×</button></div>
+        </div>
+        <div class="upload-help"><span>ⓘ</span><p>Text-searchable PDFs and DOCX files provide the best extraction results. Scanned documents need a supported OCR engine; unreadable files are routed for manual review.</p></div>
+      </section>
+      <div class="form-actions"><a class="btn btn-quiet" href="{{ url_for('dashboard') }}">Cancel</a><button class="btn btn-primary btn-large" type="submit"><span>✓</span> Create application & validate</button></div>
+    </div>
+
+    <aside class="form-aside">
+      <section class="panel checklist-panel sticky-panel"><div class="panel-heading"><div><span class="section-kicker">AUTO-CHECKLIST</span><h2>Expected documents</h2></div><span class="checklist-icon">☷</span></div><p class="aside-intro">Select a category to preview its checklist. Missing items will be reported after validation.</p><div class="dynamic-checklist" id="dynamicChecklist"><div class="checklist-placeholder"><span>01</span><p>Choose an application category to view the expected documents.</p></div></div><div class="checklist-foot"><span class="status-dot amber-dot"></span> Checklist is a configurable prototype rule set</div></section>
+      <section class="panel privacy-panel"><div class="privacy-icon">♢</div><h3>Evidence before inference</h3><p>Every finding includes its source, reason and suggested next step. A flag is not a finding of fraud.</p><div class="privacy-line"><span>01</span> Explainable checks</div><div class="privacy-line"><span>02</span> Human review</div><div class="privacy-line"><span>03</span> Audit trail</div></section>
+    </aside>
+  </div>
+</form>
+{% endblock %}

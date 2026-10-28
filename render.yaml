@@ -1,0 +1,14 @@
+services:
+  - type: web
+    name: aegisai-sih26261
+    runtime: docker
+    plan: free
+    region: singapore
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
+    healthCheckPath: /healthz
+    envVars:
+      - key: AEGISAI_SECRET_KEY
+        generateValue: true
+      - key: AEGISAI_HTTPS
+        value: "1"
