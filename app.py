@@ -23,7 +23,13 @@ from flask import (
 from werkzeug.utils import secure_filename
 
 BASE_DIR = Path(__file__).resolve().parent
-INSTANCE_DIR = BASE_DIR / "instance"
+# Vercel's deployment bundle is read-only. Runtime writes (SQLite, uploads,
+# and rule overrides) must go under /tmp. These are ephemeral demo-only files.
+IS_VERCEL = bool(os.environ.get("VERCEL") or os.environ.get("VERCEL_ENV"))
+if IS_VERCEL:
+    INSTANCE_DIR = Path(os.environ.get("AEGISAI_INSTANCE_DIR", "/tmp/aegisai-instance"))
+else:
+    INSTANCE_DIR = Path(os.environ.get("AEGISAI_INSTANCE_DIR", str(BASE_DIR / "instance")))
 UPLOAD_DIR = INSTANCE_DIR / "uploads"
 DB_PATH = INSTANCE_DIR / "aegisai.sqlite3"
 RULES_PATH = INSTANCE_DIR / "rules.json"
@@ -34,8 +40,10 @@ INSTANCE_DIR.mkdir(parents=True, exist_ok=True)
 UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
 
 app = Flask(__name__)
+# Set AEGISAI_SECRET_KEY in Vercel so sessions survive warm/cold invocations.
 app.secret_key = os.environ.get("AEGISAI_SECRET_KEY") or secrets.token_hex(32)
-app.config["MAX_CONTENT_LENGTH"] = 20 * 1024 * 1024
+# Vercel Functions have a 4.5 MB request-body limit. Keep uploads below it.
+app.config["MAX_CONTENT_LENGTH"] = (4 * 1024 * 1024) if IS_VERCEL else (20 * 1024 * 1024)
 app.config["MAX_FILES_PER_APPLICATION"] = 12
 app.config["UPLOAD_FOLDER"] = str(UPLOAD_DIR)
 app.config["SESSION_COOKIE_HTTPONLY"] = True
@@ -937,7 +945,8 @@ def healthz():
 
 @app.errorhandler(413)
 def too_large(_error):
-    return render_template("error.html", code=413, message="The upload is larger than the 20 MB request limit. Split the documents and try again."), 413
+    limit_mb = 4 if IS_VERCEL else 20
+    return render_template("error.html", code=413, message=f"The upload is larger than the {limit_mb} MB request limit. Split the documents and try again."), 413
 
 
 @app.errorhandler(400)
